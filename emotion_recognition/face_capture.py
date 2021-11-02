@@ -1,12 +1,12 @@
-import numpy as np
 import cv2 as cv
-
 import time
 import os
 import signal
 import sys
+from syslogs.logs import print_log
 
 TEMP_DIR = '/Users/maniklaldas/Desktop/Sem 3-1/AI/Assignmnt/sahyata/emotion_recognition/temp/'
+
 
 def capture_video():
     LAST_SNAPSHOT_TIME = time.time() * 100      # in milliseconds since epoch
@@ -20,7 +20,7 @@ def capture_video():
     video.set(3, 1000)
     video.set(4, 800)
 
-    while(True):
+    while True:
         _, frame = video.read()
                 
         cv.imshow('SAHyATA', frame)
@@ -41,11 +41,13 @@ def capture_video():
     cv.destroyAllWindows()
     
     cleanup()
-    
+
+
 def write_snapshot(image, timestamp):
     filepath = TEMP_DIR + str(int(timestamp)) + '.jpeg'
     cv.imwrite(filepath, image)
-    
+
+
 def get_snapshot():
     try:
         oldest_file = sorted(os.listdir(TEMP_DIR))[0] 
@@ -54,24 +56,29 @@ def get_snapshot():
         delete_file(filepath)
         return image
     except Exception as e:
-        print(e)
-        
+        print_log(e, "error")
+
+
 def delete_file(filepath):
     try:
         os.remove(filepath)
         return True
-    except:
+    except FileNotFoundError as e:
+        print_log(e, "error")
         return False
-    
+
+
 def cleanup():
     for file in os.listdir(TEMP_DIR):
         filepath = TEMP_DIR + file
         delete_file(filepath)
-    print("\nCleanup complete...")
+    print_log("Cleanup complete...", "info")
+
 
 def handler(signum, frame):
     cleanup()
     sys.exit(0)
+
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, handler)
