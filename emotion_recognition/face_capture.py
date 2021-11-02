@@ -57,6 +57,7 @@ def get_snapshot():
         return image
     except Exception as e:
         print_log(e, "error")
+        return None
 
 
 def delete_file(filepath):
