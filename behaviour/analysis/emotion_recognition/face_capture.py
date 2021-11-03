@@ -5,7 +5,7 @@ import signal
 import sys
 from syslogs.logs import print_log
 
-TEMP_DIR = '/Users/maniklaldas/Desktop/Sem 3-1/AI/Assignmnt/sahyata/emotion_recognition/temp/'
+TEMP_DIR = '/behaviour/emotion_recognition/temp/'
 
 
 def capture_video():
