@@ -1,5 +1,6 @@
 import mysql.connector
 
+from syslogs import logs
 
 def get_database():
     try:
@@ -10,6 +11,7 @@ def get_database():
             database="sahyata_db"
         )
     except Exception as e:
+        logs.print_log(e, "error")
         sql = mysql.connector.connect(
             host="localhost",
             username="root",

@@ -43,7 +43,7 @@ class Controller:
             if value:
                 self.rectifier.start(data["emotion_detected"])
             else:
-                # stop the behaviour rectifier
+                # stop the main rectifier
                 self.rectifier.stop()
 
         if field == "is_assignment_on":

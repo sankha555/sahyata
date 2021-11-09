@@ -45,8 +45,8 @@ class Observer:
 
     def observe_behaviour(self, interval=50):
         """
-        Regularly observes the behaviour of the student. Raises an alarm is behaviour is concerning.
-        :param interval: time interval in milliseconds at which to check behaviour (default is 500 ms)
+        Regularly observes the main of the student. Raises an alarm is main is concerning.
+        :param interval: time interval in milliseconds at which to check main (default is 500 ms)
         :return:
         """
 
