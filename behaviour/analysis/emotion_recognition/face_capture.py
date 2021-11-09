@@ -1,14 +1,14 @@
 import cv2 as cv
 import time
 import os
+import pathlib
 import signal
 import sys
 from syslogs.logs import print_log
 
-TEMP_DIR = '/behaviour/emotion_recognition/temp/'
+TEMP_DIR = str(pathlib.Path(__file__).parent.resolve()) + '/temp/'
 
-
-def capture_video():
+def capture_video(interval=50):
     LAST_SNAPSHOT_TIME = time.time() * 100      # in milliseconds since epoch
     
     try:
@@ -27,7 +27,7 @@ def capture_video():
         
         # Taking a snapshot for analysis
         current_time = time.time() * 100
-        if current_time - LAST_SNAPSHOT_TIME >= 50:
+        if current_time - LAST_SNAPSHOT_TIME >= interval:
             LAST_SNAPSHOT_TIME = current_time
             grayscale_snapshot = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
             write_snapshot(grayscale_snapshot, LAST_SNAPSHOT_TIME)
@@ -50,7 +50,11 @@ def write_snapshot(image, timestamp):
 
 def get_snapshot():
     try:
-        oldest_file = sorted(os.listdir(TEMP_DIR))[0] 
+        files = os.listdir(TEMP_DIR)
+        if len(files) == 0:
+            return None
+
+        oldest_file = sorted(files)[0]
         filepath = TEMP_DIR + oldest_file
         image = cv.imread(filepath)
         delete_file(filepath)
