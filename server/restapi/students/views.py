@@ -42,7 +42,8 @@ class ResourceCreationView(APIView):
 
 class ResourceDownloadView(APIView):
     @staticmethod
-    def get(self, request, pk):
+    def get(self, request):
+        pk = request.query_params["resource_pk"]
         resource = Resource.objects.get(pk=pk)
 
         file = resource.file
@@ -52,8 +53,8 @@ class ResourceDownloadView(APIView):
 
         res = {
             "type": resource.type,
-            "filename": file.name,
             "content": content,
+            "resource_pk": resource.pk
         }
 
         return Response(res, status=status.HTTP_200_OK)
@@ -84,8 +85,8 @@ class SootherView(APIView):
     def put(self, request):
         data = request.data
 
-        soother = Soother.objects.get(pk=data["pk"])
-        soother.calculate_usefulness(diff=float(data["diff"]))
+        soother = Soother.objects.get(pk=data["resource_pk"])
+        soother.calculate_usefulness(delta=float(data["delta"]))
 
         return Response({"msg": "OK"}, status=status.HTTP_200_OK)
 
@@ -93,7 +94,7 @@ class SootherView(APIView):
 class DecisionsView(APIView):
     @staticmethod
     def get(self, request):
-        data = request.data
+        data = request.query_params
 
         student = Student.objects.get(pk=data["student_pk"])
 
@@ -116,4 +117,3 @@ class DecisionsView(APIView):
         }
 
         return Response(res, status=status.HTTP_200_OK)
-

@@ -35,6 +35,9 @@ class Soother(models.Model):
     emotion = models.CharField(max_length=10, null=True, blank=True, choices=[(i, i) for i in CONCERNING_EMOTIONS])
     usefulness = models.IntegerField(default=100)     # should be between -100 and 100
 
-    def calculate_usefulness(self, diff=0):
-        self.usefulness += diff
+    def calculate_usefulness(self, delta=0):
+        if delta < 0:
+            self.usefulness = min(-100, self.usefulness + delta)
+        else:
+            self.usefulness = max(self.usefulness + delta, 100)
         self.save()

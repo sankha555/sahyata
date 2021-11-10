@@ -5,7 +5,15 @@ import sys
 import time
 import threading
 
-CONCERNING_EMOTIONS = ["neutral", "sad", "angry", "fear"]
+CONCERNING_EMOTIONS = ["sad", "fear", "angry"]
+SEVERITY = {
+    "happy": 3,
+    "surprise": 2,
+    "neutral": 1,
+    "sad": -1,
+    "fear": -2,
+    "angry": -3
+}
 
 
 def handler(signum, frame):
@@ -15,6 +23,7 @@ def handler(signum, frame):
 class Observer:
     controller = None
     current_behaviour = None
+    confidence = 0
     is_running = True
 
     def __init__(self, controller):
@@ -60,7 +69,7 @@ class Observer:
                 if latest_image is None:
                     continue
 
-                self.current_behaviour, confidence = emotion_classifier.classify_face_emotion(latest_image)
+                self.current_behaviour, self.confidence = emotion_classifier.classify_face_emotion(latest_image)
 
                 print(self.current_behaviour)
                 if self.current_behaviour in CONCERNING_EMOTIONS:
@@ -77,6 +86,9 @@ class Observer:
         """
         emotion = self.current_behaviour
         logs.print_log(f"Student is showing {emotion} emotion. Something's wrong!", "critical")
+        self.controller.rectifier.current_emotion = emotion
+        self.controller.rectifier.current_confidence = self.confidence
         self.controller.interrupt("is_behaviour_ok", False, {
-            "emotion_detected": emotion
+            "emotion_detected": emotion,
+            "confidence": self.confidence,
         })

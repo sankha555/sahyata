@@ -1,39 +1,23 @@
-import mysql.connector
+import requests
 
-from syslogs import logs
+API_BASE_URL = 'http://127.0.0.1:8000/'
 
-def get_database():
-    try:
-        sql = mysql.connector.connect(
-            host="localhost",
-            username="root",
-            password="om@123india",
-            database="sahyata_db"
-        )
-    except Exception as e:
-        logs.print_log(e, "error")
-        sql = mysql.connector.connect(
-            host="localhost",
-            username="root",
-            password="om@123india",
-        )
 
-        executor = sql.cursor()
-        executor.execute("CREATE DATABASE sahyata_db")
+def make_get_request(url, params):
+    res = requests.get(url, params)
 
-        executor.execute(
-            """
-            CREATE TABLE students (
-                ID          INT AUTO_INCREMENT PRIMARY KEY,
-                name        VARCHAR(100),
-                age         INTEGER,
-                dob         DATE,
-                class       INTEGER,
-                traits      VARCHAR (255),
-                soothers    VARCHAR (255),
-                aggravators VARCHAR (255),
-            )
-            """
-        )
+    return res
 
-    return sql
+
+def make_post_request(url, payload, waiting=True):
+    res = requests.post(url, payload)
+
+    if waiting:
+        return res
+
+
+def make_put_request(url, payload, waiting):
+    res = requests.put(url, payload)
+
+    if waiting:
+        return res
