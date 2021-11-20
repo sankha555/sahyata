@@ -4,6 +4,8 @@ made by the behaviour rectifier.
 """
 
 from content import streamers
+from content.streamers import FILE_LOC
+import os
 
 
 class Executer:
@@ -13,13 +15,18 @@ class Executer:
     def __init__(self, filepath, rectifier):
         self.filepath = filepath
         self.rectifier = rectifier
+        print("Executer initiated")
 
     def execute(self):
+        print("Executing "+self.filepath)
         self.relay_content_to_screen()
-        self.rectifier.stop_current_execution()
+        #self.rectifier.stop_current_execution()
 
     def relay_content_to_screen(self):
-        streamers.stream(filepath=self.filepath)
+        print("In relaying")
+        #streamers.stream(filepath=self.filepath)
+        #streamers.main()
+        os.system("python "+FILE_LOC)
 
 
 if __name__ == "__main__":

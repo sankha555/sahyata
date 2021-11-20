@@ -6,7 +6,12 @@ import signal
 import sys
 from syslogs.logs import print_log
 
+import imageio as iio
+import matplotlib.pyplot as plt
+
+
 TEMP_DIR = str(pathlib.Path(__file__).parent.resolve()) + '/temp/'
+
 
 def capture_video(interval=50):
     LAST_SNAPSHOT_TIME = time.time() * 100      # in milliseconds since epoch
@@ -41,6 +46,17 @@ def capture_video(interval=50):
     cv.destroyAllWindows()
     
     cleanup()
+
+
+def take_snapshot():
+    camera = iio.get_reader("<video0>")
+    screenshot = camera.get_data(0)
+    camera.close()
+
+    #plt.imshow(screenshot)
+    cv.imwrite("/Users/maniklaldas/Desktop/pics/"+str(int(time.time()))+".png", screenshot)
+
+    return screenshot
 
 
 def write_snapshot(image, timestamp):

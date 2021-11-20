@@ -4,6 +4,7 @@ from syslogs import logs
 import sys
 import time
 import threading
+import cv2 as cv
 
 CONCERNING_EMOTIONS = ["sad", "fear", "angry"]
 SEVERITY = {
@@ -33,13 +34,13 @@ class Observer:
     def start(self):
         logs.print_log("Observer started...", "info")
 
-        video_capture_thread = threading.Thread(target=face_capture.capture_video, args=())
-        video_capture_thread.start()
+        # video_capture_thread = threading.Thread(target=face_capture.capture_video, args=())
+        # video_capture_thread.start()
 
         observation_thread = threading.Thread(target=self.observe_behaviour, args=())
         observation_thread.start()
 
-        video_capture_thread.join()
+        #video_capture_thread.join()
         observation_thread.join()
 
     def pause(self):
@@ -65,9 +66,16 @@ class Observer:
             current_time = time.time() * 100
 
             if (current_time - start_time) % interval == 0:
-                latest_image = face_capture.get_snapshot()
+                # latest_image = face_capture.get_snapshot()
+                # if latest_image is None:
+                #     continue
+
+                latest_image = face_capture.take_snapshot()
                 if latest_image is None:
-                    continue
+                    print("No image captured")
+                #print(latest_image)
+                cv.namedWindow("test")
+                cv.imshow("test", latest_image)
 
                 self.current_behaviour, self.confidence = emotion_classifier.classify_face_emotion(latest_image)
 

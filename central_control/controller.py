@@ -41,10 +41,9 @@ class Controller:
 
         if field == "is_rectification_on":
             if value:
-                if not self.is_rectification_on:
-                    self.rectifier.start(data["emotion_detected"], data["confidence"])
+                self.rectifier.start(data["emotion_detected"], data["confidence"])
             else:
-                # stop the main rectifier
+                # stop the rectifier
                 self.rectifier.stop()
 
         if field == "is_assignment_on":

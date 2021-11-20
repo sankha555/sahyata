@@ -27,22 +27,21 @@ class Rectifier:
     current_emotion = None
     current_confidence = None
 
-    current_execution_thread = None
+    current_execution_thread: threading.Thread = None
     clock_thread = None
 
     def __init__(self, controller, student_id):
-        logs.print_log("Behaviour rectification started...")
         self.controller = controller
         self.student_id = student_id
+        self.clock_thread = threading.Thread(target=self.clock, args=())
 
     def start(self, emotion_detected, confidence):
+        logs.print_log("Behaviour rectification started...")
         self.original_emotion = emotion_detected
         self.is_running = True
         self.original_criticality = self.criticality(emotion_detected, confidence)
 
-        clock_thread = threading.Thread(self.clock, args=())
-        self.clock_thread = clock_thread
-        clock_thread.start()
+        self.clock_thread.start()
 
         self.run()
 
@@ -50,11 +49,12 @@ class Rectifier:
         if not self.is_running:
             return
 
-        self.decisions = self.get_decisions()
+        self.decisions = self.get_decisions(self.student_id, self.original_emotion)
+        print("Decisions got: ", self.decisions)
         while self.is_running:
             best_decision = self.get_best_decision()
             self.current_decision = best_decision
-            response = self.execute_decision(best_decision["filepath"])     # {emotion, confidence}
+            response = self.execute_decision(best_decision)     # {emotion, confidence}
 
             self.follow_up_on_response(response)
 
@@ -69,17 +69,16 @@ class Rectifier:
         if self.current_execution_thread.isAlive():
             self.current_execution_thread.join()
 
-
     @staticmethod
-    def get_decisions(self, student_id, emotion_detected):
+    def get_decisions(student_id, emotion_detected):
         query_params = {
             "student_pk": student_id,
             "emotion": emotion_detected
         }
         query_url = API_BASE_URL + 'decisions'
 
-        decisions = connection.make_get_request(query_url, query_params)
-        return decisions["soothers"] + decisions["resources"]
+        decisions = connection.make_get_request(query_url, query_params).json()
+        return decisions["soothers"]    # + decisions["resources"]
 
     def get_best_decision(self):
         best_decision = None
@@ -94,17 +93,21 @@ class Rectifier:
         return best_decision
 
     def execute_decision(self, decision):
+        print(decision)
         resource_id = decision["resource_pk"]
         if resource_id not in os.listdir(LOCAL_RESOURCES_PATH):
             filepath = self.save_resource_content(resource_id)
         else:
-            filepath = LOCAL_RESOURCES_PATH + '/' + resource_id
+            filepath = LOCAL_RESOURCES_PATH + resource_id
 
+        print(filepath)
         executer = Executer(filepath, self)
-        execution_thread = threading.Thread(executer.execute, args=())
+        execution_thread = threading.Thread(target=executer.execute, args=())
         self.current_execution_thread = execution_thread
+        #executer.execute()
         execution_thread.start()
 
+        print("Yaha tak aa gye")
         while self.cycle_complete:
             pass
         self.cycle_complete = True
@@ -116,16 +119,18 @@ class Rectifier:
         return response
 
     @staticmethod
-    def save_resource_content(self, resource_id):
+    def save_resource_content(resource_id):
         resource_url = API_BASE_URL + 'resource'
         query_params = {
             "resource_pk": resource_id
         }
         resource = connection.make_get_request(resource_url, query_params)
+        #print(resource.content)
+        resource = resource.content
 
-        filepath = LOCAL_RESOURCES_PATH + '/' + resource["resource_pk"]
+        filepath = str(LOCAL_RESOURCES_PATH) + resource_id
         with open(filepath, mode='wb') as f:
-            f.writelines(resource["content"])
+            f.write(resource)
 
     def follow_up_on_response(self, response):
         emotion = response["emotion"]
@@ -147,26 +152,28 @@ class Rectifier:
             logs.print_log("Student behaviour back to normal!", "info")
 
     @staticmethod
-    def criticality(self, emotion, confidence):
+    def criticality(emotion, confidence):
         return SEVERITY[emotion] * abs(SEVERITY[emotion]) * confidence
 
-    @staticmethod
     def send_feedback(self, delta):
-        feedback_url = API_BASE_URL + '/resource'
+        feedback_url = API_BASE_URL + 'soother'
         payload = {
-            "resource_pk": None,
+            "resource_pk": self.current_decision["resource_pk"],
+            "student_pk": self.student_id,
+            "emotion": self.current_emotion,
             "delta": delta
         }
-
+        print("Sending feedback")
         connection.make_put_request(feedback_url, payload, False)
 
     def clock(self):
         starting_time = time.time() * 100
         while True and self.is_running:
             current_time = time.time() * 100
+            #print(current_time)
             if (current_time - starting_time) % 1500:
                 self.cycle_complete = False
 
     def stop_current_execution(self):
-        if self.current_execution_thread.isAlive():
-            self.current_execution_thread.join()
+        if self.current_execution_thread.is_alive():
+            self.current_execution_thread.join(0)

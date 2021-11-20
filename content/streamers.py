@@ -1,7 +1,9 @@
 from tkinter import *
-import imageio
+
 from pygame import mixer
 from PIL import Image, ImageTk
+from matplotlib import pyplot
+import pathlib
 
 from syslogs import logs
 
@@ -9,6 +11,11 @@ VIDEO_EXTENSIONS = [".mkv", ".mp4", ".flv", ".srt", ".gif"]
 AUDIO_EXTENSIONS = [".mp3"]
 IMAGE_EXTENSIONS = [".jpeg", ".jpg", ".png", ".tiff", ".gif"]
 
+FILE_LOC = str(pathlib.Path(__file__).parent.resolve()) + '/streamers.py'
+
+mixer.init()
+
+root = Tk()
 
 def get_file_type(filepath):
     extension = "." + filepath.split('.')[-1]
@@ -33,7 +40,6 @@ def stream_video(video, delay, placeholder):
 
 
 def stream_audio(filepath):
-    mixer.init()
     mixer.music.load(filepath)
     mixer.music.play()
 
@@ -50,8 +56,10 @@ def stream_image(filepath):
 
 
 def stream(filepath="1.mkv"):
-    root = Tk()
-    root.title(filepath)
+    pyplot.switch_backend('Agg')
+    print("Streaming "+filepath)
+
+    #root.title(filepath)
 
     file_type = get_file_type(filepath)
     if file_type == "video":
@@ -76,7 +84,12 @@ def stream(filepath="1.mkv"):
 
     root.mainloop()
 
+def main():
+    print("In main of streamers.py")
+    file = '/Users/maniklaldas/Desktop/Sem 3-1/AI/Assignmnt/sahyata/behaviour/rectification/../../content/resources/dog_JaV8fNT.mp4'
+    stream(file)
 
 if __name__ == "__main__":
-    file = input("Enter file path: ")
-    stream(file)
+    # file = '/Users/maniklaldas/Desktop/Sem 3-1/AI/Assignmnt/sahyata/behaviour/rectification/../../content/resources/dog_JaV8fNT.mp4'
+    # stream(file)
+    main()

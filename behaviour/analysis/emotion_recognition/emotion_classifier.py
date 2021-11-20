@@ -15,7 +15,7 @@ def classify_face_emotion(image):
 
     try:
         emo_detector = FER(mtcnn=True)
-
+        print(emo_detector.detect_emotions(image))
         return emo_detector.top_emotion(image)
     except Exception as e:
         logs.print_log(e, "error")

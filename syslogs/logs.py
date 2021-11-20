@@ -1,7 +1,7 @@
 import logging
-import coloredlogs
-
-coloredlogs.install(fmt='%(levelname)s: %(message)s')
+# import coloredlogs
+#
+# coloredlogs.install(fmt='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
 
