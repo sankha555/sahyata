@@ -43,6 +43,8 @@ nameLabel = tk.Label(master = welcomeFrame, text = "Name: ", fg = "black", bg = 
 nameEntry = tk.Entry(master = welcomeFrame, fg = "black", bg = "white", width = 60, font = 30)
 IDLabel = tk.Label(master = welcomeFrame, text = "ID: ", fg = "black", bg = "white", width = 60, height = 2, font = 30)
 IDEntry = tk.Entry(master = welcomeFrame, fg = "black", bg = "white", width = 60, font = 30)
+ColorLabel = tk.Label(master = welcomeFrame, text = "Color preferences: ", fg = "black", bg = "white", width = 60, height = 2, font = 30)
+ColorEntry = tk.Entry(master = welcomeFrame, fg = "black", bg = "white", width = 60, font = 30)
 submitButton = tk.Button(master = welcomeFrame, text = "Submit", height = 4, width = 14, command = initialised)
 
 quesBox = tk.Label(master = quesFrame, text = "QUESTION WILL BE DISPLAYED HERE", fg="white", bg="black", width=90, height=25, font=100)
@@ -58,6 +60,8 @@ nameEntry.pack()
 # IDLabel.pack(side = tk.LEFT)
 IDLabel.pack()
 IDEntry.pack()
+ColorLabel.pack()
+ColorEntry.pack()
 submitButton.pack()
 
 window.mainloop()
