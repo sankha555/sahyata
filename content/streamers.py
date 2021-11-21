@@ -57,11 +57,9 @@ def stream_image(filepath):
     placeholder.image = image
 
 
-def stream(filepath="1.mkv"):
+def stream(filepath):
     pyplot.switch_backend('Agg')
     print("Streaming "+filepath)
-
-    #root.title(filepath)
 
     file_type = get_file_type(filepath)
     if file_type == "video":
@@ -86,11 +84,10 @@ def stream(filepath="1.mkv"):
 
     root.mainloop()
 
+
 def main(filepath):
-    print("In main of streamers.py")
     stream(filepath)
 
+
 if __name__ == "__main__":
-    # file = '/Users/maniklaldas/Desktop/Sem 3-1/AI/Assignmnt/sahyata/behaviour/rectification/../../content/resources/dog_JaV8fNT.mp4'
-    # stream(file)
     main(str(sys.argv[1]))

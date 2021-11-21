@@ -53,9 +53,6 @@ def take_snapshot():
     screenshot = camera.get_data(0)
     camera.close()
 
-    #plt.imshow(screenshot)
-    cv.imwrite("/Users/maniklaldas/Desktop/pics/"+str(int(time.time()))+".png", screenshot)
-
     return screenshot
 
 

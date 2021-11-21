@@ -41,6 +41,7 @@ class Rectifier:
         self.original_emotion = emotion_detected
         self.current_emotion = self.original_emotion
         self.current_confidence = confidence
+        print(f"Rectifying {emotion_detected} (confidence: {confidence}%)")
         self.is_running = True
         self.original_criticality = self.criticality(emotion_detected, confidence)
 
@@ -109,13 +110,11 @@ class Rectifier:
             else:
                 filepath = LOCAL_RESOURCES_PATH + resource_id
 
-            print(filepath)
             executer = Executer(filepath, self)
             executer.execute()
 
-            print("Yaha tak aa gye")
             while self.cycle_complete:
-                print("Let it run")
+                pass
             self.cycle_complete = True
 
             response = {
@@ -134,7 +133,6 @@ class Rectifier:
             "resource_pk": resource_id
         }
         resource = connection.make_get_request(resource_url, query_params)
-        #print(resource.content)
         resource = resource.content
 
         filepath = str(LOCAL_RESOURCES_PATH) + resource_id
@@ -179,7 +177,7 @@ class Rectifier:
         starting_time = time.time() * 100
         while True and self.is_running:
             current_time = time.time() * 100
-            #print(current_time)
+
             if (current_time - starting_time) % 1500:
                 self.cycle_complete = False
 

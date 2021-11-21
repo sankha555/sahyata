@@ -6,6 +6,7 @@ import time
 import sys
 import threading
 
+
 class Controller:
     is_behaviour_ok = False
     is_assignment_on = False
@@ -67,5 +68,5 @@ class Controller:
 
     def raise_mega_alarm(self):
         self.rectifier.stop()
-        print("Sorry, call the teacher!")
+        print("Sorry, please call the teacher!")
         sys.exit(0)
