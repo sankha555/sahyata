@@ -3,7 +3,8 @@ from behaviour.analysis.emotion_recognition.observer import Observer
 from behaviour.rectification.rectifier import Rectifier
 
 import time
-
+import sys
+import threading
 
 class Controller:
     is_behaviour_ok = False
@@ -23,7 +24,8 @@ class Controller:
         self.rectifier = Rectifier(controller=self, student_id=student_id)
 
     def run(self):
-        self.start_behaviour_analysis()
+        behaviour_thread = threading.Thread(target=self.start_behaviour_analysis, args=())
+        behaviour_thread.start()
 
     def interrupt(self, field, value, data={}):
         setattr(self, field, value)
@@ -41,6 +43,8 @@ class Controller:
 
         if field == "is_rectification_on":
             if value:
+                if self.rectifier.is_running and (data["emotion_detected"] != self.rectifier.original_emotion):
+                    self.rectifier.stop()
                 self.rectifier.start(data["emotion_detected"], data["confidence"])
             else:
                 # stop the rectifier
@@ -60,3 +64,8 @@ class Controller:
 
     def start_assignment_management(self):
         pass
+
+    def raise_mega_alarm(self):
+        self.rectifier.stop()
+        print("Sorry, call the teacher!")
+        sys.exit(0)

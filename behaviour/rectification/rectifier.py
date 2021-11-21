@@ -2,6 +2,7 @@ import pathlib
 import os
 import threading
 import time
+import queue
 
 from server.connection import API_BASE_URL
 from server import connection
@@ -38,6 +39,8 @@ class Rectifier:
     def start(self, emotion_detected, confidence):
         logs.print_log("Behaviour rectification started...")
         self.original_emotion = emotion_detected
+        self.current_emotion = self.original_emotion
+        self.current_confidence = confidence
         self.is_running = True
         self.original_criticality = self.criticality(emotion_detected, confidence)
 
@@ -54,9 +57,16 @@ class Rectifier:
         while self.is_running:
             best_decision = self.get_best_decision()
             self.current_decision = best_decision
-            response = self.execute_decision(best_decision)     # {emotion, confidence}
 
-            self.follow_up_on_response(response)
+            result_queue = queue.Queue()
+            execution_thread = threading.Thread(target=self.execute_decision, args=(best_decision, result_queue,))
+            execution_thread.daemon = True
+            self.current_execution_thread = execution_thread
+            execution_thread.start()
+            response = result_queue.get()
+
+            if response is not None:
+                self.follow_up_on_response(response)
 
     def stop(self):
         self.student_id = None
@@ -66,8 +76,7 @@ class Rectifier:
         self.bad_decisions = []
         if self.clock_thread.isAlive():
             self.clock_thread.join()
-        if self.current_execution_thread.isAlive():
-            self.current_execution_thread.join()
+        self.stop_current_execution()
 
     @staticmethod
     def get_decisions(student_id, emotion_detected):
@@ -92,31 +101,31 @@ class Rectifier:
             best_decision = self.get_best_decision()
         return best_decision
 
-    def execute_decision(self, decision):
-        print(decision)
-        resource_id = decision["resource_pk"]
-        if resource_id not in os.listdir(LOCAL_RESOURCES_PATH):
-            filepath = self.save_resource_content(resource_id)
-        else:
-            filepath = LOCAL_RESOURCES_PATH + resource_id
+    def execute_decision(self, decision, result_queue):
+        try:
+            resource_id = decision["resource_pk"]
+            if resource_id not in os.listdir(LOCAL_RESOURCES_PATH):
+                filepath = self.save_resource_content(resource_id)
+            else:
+                filepath = LOCAL_RESOURCES_PATH + resource_id
 
-        print(filepath)
-        executer = Executer(filepath, self)
-        execution_thread = threading.Thread(target=executer.execute, args=())
-        self.current_execution_thread = execution_thread
-        #executer.execute()
-        execution_thread.start()
+            print(filepath)
+            executer = Executer(filepath, self)
+            executer.execute()
 
-        print("Yaha tak aa gye")
-        while self.cycle_complete:
-            pass
-        self.cycle_complete = True
+            print("Yaha tak aa gye")
+            while self.cycle_complete:
+                print("Let it run")
+            self.cycle_complete = True
 
-        response = {
-            "emotion": self.current_emotion,
-            "confidence": self.current_confidence
-        }
-        return response
+            response = {
+                "emotion": self.current_emotion,
+                "confidence": self.current_confidence
+            }
+
+            result_queue.put(response)
+        except:
+            self.controller.raise_mega_alarm()
 
     @staticmethod
     def save_resource_content(resource_id):
@@ -175,5 +184,6 @@ class Rectifier:
                 self.cycle_complete = False
 
     def stop_current_execution(self):
-        if self.current_execution_thread.is_alive():
-            self.current_execution_thread.join(0)
+        if self.current_execution_thread and self.current_execution_thread.is_alive():
+            del(self.current_execution_thread)
+            self.current_execution_thread = None

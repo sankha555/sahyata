@@ -1,11 +1,13 @@
 from tkinter import *
-
+import imageio
 from pygame import mixer
 from PIL import Image, ImageTk
 from matplotlib import pyplot
 import pathlib
+import sys
 
 from syslogs import logs
+
 
 VIDEO_EXTENSIONS = [".mkv", ".mp4", ".flv", ".srt", ".gif"]
 AUDIO_EXTENSIONS = [".mp3"]
@@ -84,12 +86,11 @@ def stream(filepath="1.mkv"):
 
     root.mainloop()
 
-def main():
+def main(filepath):
     print("In main of streamers.py")
-    file = '/Users/maniklaldas/Desktop/Sem 3-1/AI/Assignmnt/sahyata/behaviour/rectification/../../content/resources/dog_JaV8fNT.mp4'
-    stream(file)
+    stream(filepath)
 
 if __name__ == "__main__":
     # file = '/Users/maniklaldas/Desktop/Sem 3-1/AI/Assignmnt/sahyata/behaviour/rectification/../../content/resources/dog_JaV8fNT.mp4'
     # stream(file)
-    main()
+    main(str(sys.argv[1]))

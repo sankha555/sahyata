@@ -1,5 +1,5 @@
 # emotion recognition
-numpycertifi==2021.10.8
+#numpycertifi==2021.10.8
 charset-normalizer==2.0.7
 cycler==0.11.0
 fer==21.0.5

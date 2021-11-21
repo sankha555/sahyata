@@ -26,7 +26,7 @@ class Executer:
         print("In relaying")
         #streamers.stream(filepath=self.filepath)
         #streamers.main()
-        os.system("python "+FILE_LOC)
+        os.system("python "+FILE_LOC+" "+self.filepath)
 
 
 if __name__ == "__main__":
